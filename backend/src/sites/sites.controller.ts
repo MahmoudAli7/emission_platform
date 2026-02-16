@@ -35,4 +35,9 @@ export class SitesController {
   async getMetrics(@Param('id') id: string) {
     return this.sitesService.getMetrics(id);
   }
+
+  @Get(':id/readings')
+  async getReadings(@Param('id') id: string) {
+    return this.sitesService.getReadings(id);
+  }
 }

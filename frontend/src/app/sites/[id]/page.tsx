@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSiteMetrics } from '@/lib/api';
 import { StatusBadge } from '@/components/status-badge';
 import { IngestionForm } from '@/components/ingestion-form';
+import { EmissionsChart } from '@/components/emissions-chart';
 
 export default function SiteDetailPage() {
   const params = useParams();
@@ -191,6 +192,9 @@ export default function SiteDetailPage() {
           </button>
         </div>
       </div>
+
+      {/* Emissions Over Time Chart */}
+      <EmissionsChart siteId={siteId} emissionLimit={emissionLimit} />
 
       {/* Ingestion Form */}
       <IngestionForm siteId={siteId} onSuccess={() => refetch()} />

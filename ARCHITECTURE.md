@@ -34,12 +34,14 @@ backend/src/
 frontend/src/
   app/
     layout.tsx                   # Root layout + React Query provider
-    page.tsx                     # Dashboard (list sites, create site form)
-    sites/[id]/page.tsx          # Site detail (metrics, progress bar, ingestion form)
+    page.tsx                     # Dashboard (list sites, create site form, map)
+    sites/[id]/page.tsx          # Site detail (metrics, chart, ingestion form)
   components/
     site-card.tsx                # Site summary card with progress bar
     status-badge.tsx             # Compliance badge (green/red)
     ingestion-form.tsx           # Batch submission form with retry mechanism
+    emissions-chart.tsx          # Cumulative emissions line chart (Recharts)
+    site-map.tsx                 # Geospatial map with site markers (Mapbox GL)
   lib/
     api.ts                       # Fetch wrapper + React Query hooks
 
@@ -126,6 +128,8 @@ sites
   location      VARCHAR(255)
   emission_limit          NUMERIC(14,4)
   total_emissions_to_date NUMERIC(14,4)   -- Pre-computed aggregate
+  latitude      NUMERIC(10,6)             -- Optional GPS (nullable)
+  longitude     NUMERIC(10,6)             -- Optional GPS (nullable)
   created_at    TIMESTAMP
   updated_at    TIMESTAMP
         |
@@ -164,9 +168,10 @@ POST /ingest { site_id, batch_key, readings[] }
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/sites` | Create a monitoring site with emission limit |
+| `POST` | `/api/sites` | Create a monitoring site with emission limit and optional GPS coordinates |
 | `GET` | `/api/sites` | List all sites with compliance status |
 | `GET` | `/api/sites/:id/metrics` | Detailed metrics including readings count and compliance |
+| `GET` | `/api/sites/:id/readings` | Time-series readings for the emissions chart |
 | `POST` | `/api/ingest` | Submit a batch of 1-100 readings with idempotency |
 
 ## Bonus Tasks Implemented

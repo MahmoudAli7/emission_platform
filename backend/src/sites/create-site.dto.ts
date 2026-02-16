@@ -13,6 +13,18 @@ export const createSiteSchema = z.object({
     .number()
     .positive('Emission limit must be a positive number')
     .finite('Emission limit must be a finite number'),
+  latitude: z
+    .number()
+    .min(-90, 'Latitude must be between -90 and 90')
+    .max(90, 'Latitude must be between -90 and 90')
+    .optional()
+    .nullable(),
+  longitude: z
+    .number()
+    .min(-180, 'Longitude must be between -180 and 180')
+    .max(180, 'Longitude must be between -180 and 180')
+    .optional()
+    .nullable(),
 });
 
 export type CreateSiteDto = z.infer<typeof createSiteSchema>;

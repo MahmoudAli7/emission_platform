@@ -4,6 +4,19 @@ import { useState } from 'react';
 import { useSubmitIngestion, type Reading } from '@/lib/api';
 import { v4 as uuidv4 } from 'uuid';
 
+/**
+ * Convert a Date to a local datetime string for use with <input type="datetime-local">.
+ * The input expects "YYYY-MM-DDTHH:MM" in the user's local timezone.
+ */
+function toLocalDatetimeString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 interface IngestionFormProps {
   siteId: string;
   onSuccess?: () => void;
@@ -188,8 +201,10 @@ export function IngestionForm({ siteId, onSuccess }: IngestionFormProps) {
                   </label>
                   <input
                     type="datetime-local"
-                    value={reading.recorded_at.slice(0, 16)}
+                    value={toLocalDatetimeString(new Date(reading.recorded_at))}
                     onChange={(e) => {
+                      // datetime-local gives a local time string; new Date() parses it
+                      // as local, then toISOString() converts to UTC for the API.
                       const date = new Date(e.target.value);
                       handleUpdateReading(
                         index,

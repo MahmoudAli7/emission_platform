@@ -16,11 +16,14 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# NEXT_PUBLIC_API_URL is baked in at build time.
+# NEXT_PUBLIC_* vars are baked in at build time.
 # Default (empty) falls back to http://localhost:3001/api in api.ts.
 # Override with --build-arg for deployments.
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+ARG NEXT_PUBLIC_MAPBOX_TOKEN
+ENV NEXT_PUBLIC_MAPBOX_TOKEN=$NEXT_PUBLIC_MAPBOX_TOKEN
 
 RUN npm run build
 

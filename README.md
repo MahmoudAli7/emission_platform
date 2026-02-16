@@ -37,7 +37,7 @@ DATABASE_URL="postgresql://emissions_user:emissions_pass@localhost:5433/emission
 # 3. Frontend (Terminal 2)
 cd frontend
 npm install
-npm run dev
+NEXT_PUBLIC_MAPBOX_TOKEN="your_token_here" npm run dev   # token is optional — map shows fallback without it
 ```
 
 ## Running Tests
@@ -66,10 +66,21 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for key technical decisions, database s
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/sites` | Create a monitoring site with emission limit |
+| `POST` | `/api/sites` | Create a monitoring site with emission limit and optional GPS coordinates |
 | `GET` | `/api/sites` | List all sites with compliance status |
 | `GET` | `/api/sites/:id/metrics` | Detailed metrics including readings count and compliance |
+| `GET` | `/api/sites/:id/readings` | Time-series readings for the emissions chart |
 | `POST` | `/api/ingest` | Submit a batch of 1-100 readings with idempotency |
+
+## Geospatial Map (Optional)
+
+The dashboard includes an interactive map that plots site locations. It requires a free [Mapbox](https://account.mapbox.com/access-tokens/) access token. Create a `.env` file in the project root:
+
+```
+NEXT_PUBLIC_MAPBOX_TOKEN=pk.your_token_here
+```
+
+The app works fully without it — the map section displays a fallback message.
 
 ## Bonus Tasks Implemented
 

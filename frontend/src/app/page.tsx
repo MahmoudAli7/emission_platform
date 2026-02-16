@@ -1,9 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useSites, useCreateSite } from '@/lib/api';
 import { SiteCard } from '@/components/site-card';
 import { StatusBadge } from '@/components/status-badge';
+
+// Mapbox GL requires browser APIs — load it only on the client
+const SiteMap = dynamic(
+  () => import('@/components/site-map').then((mod) => mod.SiteMap),
+  { ssr: false },
+);
 
 export default function DashboardPage() {
   const { data: sites, isLoading, error, isRefetching } = useSites();
@@ -13,6 +20,8 @@ export default function DashboardPage() {
     name: '',
     location: '',
     emission_limit: '',
+    latitude: '',
+    longitude: '',
   });
 
   const handleCreateSite = async (e: React.FormEvent) => {
@@ -22,8 +31,16 @@ export default function DashboardPage() {
         name: formData.name,
         location: formData.location,
         emission_limit: parseFloat(formData.emission_limit),
+        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
       });
-      setFormData({ name: '', location: '', emission_limit: '' });
+      setFormData({
+        name: '',
+        location: '',
+        emission_limit: '',
+        latitude: '',
+        longitude: '',
+      });
       setShowCreateForm(false);
     } catch (error) {
       // Error is handled by mutation
@@ -78,6 +95,11 @@ export default function DashboardPage() {
             </p>
           </div>
         </div>
+      )}
+
+      {/* Geospatial Map */}
+      {sites && sites.some((s) => s.latitude && s.longitude) && (
+        <SiteMap sites={sites} />
       )}
 
       {/* Create Site Form */}
@@ -144,6 +166,44 @@ export default function DashboardPage() {
                 className="mt-1 w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
                 placeholder="e.g., 5000"
               />
+            </div>
+
+            {/* Coordinates (optional) */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Latitude <span className="text-gray-400">(optional)</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.000001"
+                  min="-90"
+                  max="90"
+                  value={formData.latitude}
+                  onChange={(e) =>
+                    setFormData({ ...formData, latitude: e.target.value })
+                  }
+                  className="mt-1 w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  placeholder="e.g., 51.0447"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Longitude <span className="text-gray-400">(optional)</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.000001"
+                  min="-180"
+                  max="180"
+                  value={formData.longitude}
+                  onChange={(e) =>
+                    setFormData({ ...formData, longitude: e.target.value })
+                  }
+                  className="mt-1 w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  placeholder="e.g., -114.0719"
+                />
+              </div>
             </div>
 
             <div className="flex gap-3">

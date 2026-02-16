@@ -32,6 +32,11 @@ export const sites = pgTable('sites', {
     .notNull()
     .default('0'),
 
+  // Optional GPS coordinates for geospatial visualization.
+  // Nullable because legacy sites may not have coordinates.
+  latitude: numeric('latitude', { precision: 10, scale: 6 }),
+  longitude: numeric('longitude', { precision: 10, scale: 6 }),
+
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

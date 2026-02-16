@@ -13,6 +13,8 @@ export interface Site {
   location: string;
   emission_limit: string;
   total_emissions_to_date: string;
+  latitude: string | null;
+  longitude: string | null;
   status: 'Within Limit' | 'Limit Exceeded';
   created_at?: string;
 }
@@ -23,6 +25,8 @@ export interface SiteMetrics {
   location: string;
   emission_limit: string;
   total_emissions_to_date: string;
+  latitude: string | null;
+  longitude: string | null;
   status: 'Within Limit' | 'Limit Exceeded';
   readings_count: number;
   last_reading_at: string | null;
@@ -30,6 +34,12 @@ export interface SiteMetrics {
 
 export interface Reading {
   value: number;
+  recorded_at: string;
+}
+
+export interface Measurement {
+  id: string;
+  value: string;
   recorded_at: string;
 }
 
@@ -87,6 +97,8 @@ export async function createSite(payload: {
   name: string;
   location: string;
   emission_limit: number;
+  latitude?: number | null;
+  longitude?: number | null;
 }): Promise<Site> {
   const response = await apiCall<Site>('/sites', {
     method: 'POST',
@@ -102,6 +114,13 @@ export async function listSites(): Promise<Site[]> {
 
 export async function getSiteMetrics(siteId: string): Promise<SiteMetrics> {
   const response = await apiCall<SiteMetrics>(`/sites/${siteId}/metrics`);
+  return response.data!;
+}
+
+export async function getSiteReadings(
+  siteId: string,
+): Promise<Measurement[]> {
+  const response = await apiCall<Measurement[]>(`/sites/${siteId}/readings`);
   return response.data!;
 }
 
@@ -151,6 +170,19 @@ export function useSiteMetrics(siteId: string | null) {
 }
 
 /**
+ * Fetch time-series readings for a specific site
+ */
+export function useSiteReadings(siteId: string | null) {
+  return useQuery({
+    queryKey: ['site', siteId, 'readings'],
+    queryFn: () => getSiteReadings(siteId!),
+    enabled: !!siteId,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+}
+
+/**
  * Create a new site
  */
 export function useCreateSite() {
@@ -187,6 +219,10 @@ export function useSubmitIngestion() {
       // Invalidate the specific site's metrics to refetch
       queryClient.invalidateQueries({
         queryKey: ['site', variables.site_id, 'metrics'],
+      });
+      // Invalidate the site's readings so the emissions chart updates
+      queryClient.invalidateQueries({
+        queryKey: ['site', variables.site_id, 'readings'],
       });
       // Also invalidate sites list in case total changed
       queryClient.invalidateQueries({ queryKey: ['sites'] });
