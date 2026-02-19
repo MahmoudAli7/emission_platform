@@ -1,6 +1,6 @@
 # Emissions Ingestion & Analytics Engine
 
-A full-stack platform for ingesting, storing, and monitoring industrial methane emissions with data integrity guarantees. Built with NestJS, Next.js 15, PostgreSQL, and Drizzle ORM.
+A full-stack platform for ingesting, storing, and monitoring industrial methane emissions with data integrity guarantees. Built with NestJS, Next.js 15, PostgreSQL, and Drizzle ORM. Live Demo: https://emission-platform.vercel.app
 
 ## Quick Start (One Command)
 
